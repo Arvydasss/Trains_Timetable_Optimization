@@ -10,19 +10,19 @@ Data can be found in data folder, where is locationLinksData.csv file, which con
 
 ### How to create QUBO matrix?
 
-In console write line: **python QUBO_generator.py**
+In console write line: **python QUBO_generator.py (problem_number)**
 
 It will generate QUBO_matrix.npz file in files folder.
 
 ### How to solve it using quantums?
 
 When QUBO matrix is generated, write line in console:
-- For real quantum computing: **python Qfile_solve.py 'simulated' 0 0**
+- For real quantum computing: **python Qfile_solve.py 'quantum' (problem_number) 0 0**
 
-- For simulated quantum computing: **python Qfile_solve.py 'quantum' 255 1390**
+- For simulated quantum computing: **python Qfile_solve.py 'simulated' (problem_number) 2000 240**
   
 ### How to see all the solutions and timetables?
 
-In console write line: **python solution_analysis.py**
+In console write line: **python solution_analysis.py (console/png)**
 
 It will print all the solutions in console and create train_schedule_linear.pdf, train_schedule_original.pdf, train_schedule_simulated.pdf, train_schedule_quantums.pdf files which contains timetable.
