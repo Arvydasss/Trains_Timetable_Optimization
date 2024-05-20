@@ -16,7 +16,7 @@ class Problem():
         self.p_sum = 2.5
         self.p_pair = 1.25
         self.p_qubic = 2.1
-        self.d_max = 8
+        self.d_max = 5
 
     def __str__(self):
         output = "Problem:\n"

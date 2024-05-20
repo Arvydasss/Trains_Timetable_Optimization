@@ -86,7 +86,8 @@ def readScheduleXml(xml_file):
 
     readDataFromXml(root, trains)
     calculateOutPenaltyStopRoutesT(trains, t_out, t_penalty, t_stop, Routes, T)
-    calculateHeadwayTrackSwitchT(Routes, t_headway, Ttrack, Tswitch, T1)
+    calculateHeadwayTrackT(Routes, t_headway, Ttrack, T1)
+    calculateForSingleLine(Routes, T0, Tswitch)
     fixedRepeatedValues(Ttrack, T1, Tswitch)
     calculateStopAndPassingTime(trains, t_pass, t_stop, locationLinks)
 
@@ -128,7 +129,6 @@ def calculateOutPenaltyStopRoutesT(trains, t_out, t_penalty, t_stop, Routes, T):
 
             if (i == 0):
                 t_out[train_id + '_' + event_info['stagename']] = event_info['time']
-                # dar nežinia kaip numatyt penalty stotyje, todėl kol kas palieku konstanta
                 t_penalty[train_id + '_' + event_info['stagename']] = 0
             else:
                 t_stop[train_id + '_' + event_info['stagename']] = 0
@@ -136,7 +136,7 @@ def calculateOutPenaltyStopRoutesT(trains, t_out, t_penalty, t_stop, Routes, T):
         Routes[train_id] = route
         T.append(train_id)
 
-def calculateHeadwayTrackSwitchT(Routes, t_headway, Ttrack, Tswitch, T1):
+def calculateHeadwayTrackT(Routes, t_headway, Ttrack, T1):
     route_keys = list(Routes.keys())
     for i in range(len(route_keys) - 1):
         train_id_1 = route_keys[i]
@@ -158,11 +158,6 @@ def calculateHeadwayTrackSwitchT(Routes, t_headway, Ttrack, Tswitch, T1):
                     Ttrack[station]= [[train_id_1, train_id_2]]
                 else:
                     Ttrack[station].append([train_id_1, train_id_2])
-
-                if station not in Tswitch:
-                    Tswitch[station] = [{train_id_1: "out", train_id_2: "out"}, {train_id_1: "in", train_id_2: "in"}]
-                else:
-                    Tswitch[station].append([{train_id_1: "out", train_id_2: "out"}, {train_id_1: "in", train_id_2: "in"}])
                 
                 if station not in T1:
                     T1[station] = {}
@@ -170,6 +165,12 @@ def calculateHeadwayTrackSwitchT(Routes, t_headway, Ttrack, Tswitch, T1):
                     T1[station][next_station] = [[train_id_1, train_id_2]]
                 else:
                     T1[station][next_station].append([train_id_1, train_id_2])
+            
+            last_station = route_1[-1]
+            if last_station not in Ttrack:
+                Ttrack[last_station] = [[train_id_1, train_id_2]]
+            else:
+                Ttrack[last_station].append([train_id_1, train_id_2])
 
 def fixedRepeatedValues(Ttrack, T1, Tswitch):
     for key, value_list in Ttrack.items():
@@ -178,9 +179,13 @@ def fixedRepeatedValues(Ttrack, T1, Tswitch):
     for key, inner_dict in T1.items():
         for inner_key, value_list in inner_dict.items():
             inner_dict[inner_key] = [uniqueValues(value_list)]
-
+    
     for key, value_list in Tswitch.items():
         Tswitch[key] = [mergeDictsInList(value_list)]
+
+    for key, value in Tswitch.items():
+        new_value = [{k: 'in' for k in value[0]}]
+        Tswitch[key].extend(new_value)
 
 def uniqueValues(lst):
     unique_vals = set()
@@ -189,20 +194,22 @@ def uniqueValues(lst):
     return list(unique_vals)
 
 def mergeDictsInList(lst):
-        merged_dict = {}
-        for d in lst:
-            if isinstance(d, dict):
-                for key, value in d.items():
-                    merged_dict.setdefault(key, 'in')
+    merged_dict = {}
+    for d in lst:
+        if isinstance(d, dict):
+            for key, value in d.items():
+                if key not in merged_dict:
+                    merged_dict[key] = 'in'
+                if value == 'out':
+                    merged_dict[key] = value
+        elif isinstance(d, list):
+            for sub_dict in d:
+                for key, value in sub_dict.items():
+                    if key not in merged_dict:
+                        merged_dict[key] = 'in'
                     if value == 'out':
                         merged_dict[key] = value
-            elif isinstance(d, list):
-                for sub_dict in d:
-                    for key, value in sub_dict.items():
-                        merged_dict.setdefault(key, 'in')
-                        if value == 'out':
-                            merged_dict[key] = value
-        return merged_dict
+    return merged_dict
 
 def calculateStopAndPassingTime(trains, t_pass, t_stop, locationLinks):
     for train_info in trains:
@@ -223,6 +230,33 @@ def calculateStopAndPassingTime(trains, t_pass, t_stop, locationLinks):
                     t_pass[key] = int(distance / 80 * 60)
                 else:
                     t_stop[train_id + '_'+ event1['stagename']] = int(event2['time']) - int(event1['time'])
+
+def calculateForSingleLine(Routes, T0, Tswitch):
+    route_keys = list(Routes.keys())
+    for i in range(len(route_keys) - 1):
+        train_id_1 = route_keys[i]
+        train_id_2 = route_keys[i+1]
+
+        route_1 = Routes[train_id_1]
+        route_2 = Routes[train_id_2]
+
+        if (route_1 == route_2[::-1]):
+            print(train_id_1)
+            print(train_id_2)
+            for j in range(len(route_1) - 1):
+                station = route_1[j]
+                next_station = route_1[j+1]
+                conflict_key = (station, next_station)
+                if conflict_key not in T0:
+                    T0[conflict_key] = []
+
+                if station not in Tswitch:
+                    Tswitch[station] = [{train_id_1: "out", train_id_2: "out"}, {train_id_1: "in", train_id_2: "in"}]
+                else:
+                    Tswitch[station].append([{train_id_1: "out", train_id_2: "out"}, {train_id_1: "in", train_id_2: "in"}])
+
+                if [train_id_1, train_id_2] not in T0[conflict_key]:
+                    T0[conflict_key].append([train_id_1, train_id_2])
 
 def assignValuesToProblem(t_pass, t_headway, t_stop, t_out, t_penalty, Routes, T, T1, T0, Ttrack, Tswitch):
     taus = {

@@ -1,0 +1,62 @@
+<LoadRegulatorySchedule>
+  <RegulatorySchedule>
+    <Thread train="2001">
+      <Event esr="09180" type="arrival" time="062000" odd="False" stagename="Jelgava" />
+      <Event esr="09180" type="departure" time="062400" odd="False" stagename="Jelgava" stage="1" />
+      <Event esr="09764" type="transition" time="064800" odd="False" stagename="Livberze" stage="1" />
+      <Event esr="09772" type="transition" time="071100" odd="False" stagename="Slampe" stage="1" />
+      <Event esr="09750" type="transition" time="073300" odd="False" stagename="Tukums-2" stage="1" />
+      <Event esr="09751" type="transition" time="074800" odd="False" stagename="Zvare" stage="1" />
+      <Event esr="09780" type="transition" time="080100" odd="False" stagename="Kandava" stage="1" />
+      <Event esr="09790" type="transition" time="082000" odd="False" stagename="Sabile" stage="1" />
+      <Event esr="09800" type="transition" time="082900" odd="False" stagename="Stende" stage="1" />
+      <Event esr="09801" type="arrival" time="083700" odd="False" stagename="Lici" stage="1" />
+      </Thread>
+    <Thread train="6001">
+      <Event esr="09180" type="arrival" time="062000" odd="False" stagename="Jelgava" />
+      <Event esr="09180" type="departure" time="062400" odd="False" stagename="Jelgava" stage="1" />
+      <Event esr="09764" type="transition" time="064800" odd="False" stagename="Livberze" stage="1" />
+      <Event esr="09772" type="transition" time="071100" odd="False" stagename="Slampe" stage="1" />
+      <Event esr="09750" type="transition" time="073300" odd="False" stagename="Tukums-2" stage="1" />
+      <Event esr="09751" type="transition" time="074800" odd="False" stagename="Zvare" stage="1" />
+      <Event esr="09780" type="transition" time="080100" odd="False" stagename="Kandava" stage="1" />
+      <Event esr="09790" type="transition" time="082000" odd="False" stagename="Sabile" stage="1" />
+      <Event esr="09800" type="transition" time="082900" odd="False" stagename="Stende" stage="1" />
+      <Event esr="09801" type="arrival" time="083700" odd="False" stagename="Lici" stage="1" />
+      </Thread>
+    <Thread train="2410">
+      <Event esr="09801" type="arrival" time="074900" odd="False" stagename="Lici" stage="1" />
+      <Event esr="09801" type="departure" time="080300" odd="False" stagename="Lici" stage="1" />
+      <Event esr="09800" type="transition" time="081700" odd="False" stagename="Stende" stage="1" />
+      <Event esr="09790" type="transition" time="082400" odd="False" stagename="Sabile" stage="1" />
+      <Event esr="09780" type="transition" time="083300" odd="False" stagename="Kandava" stage="1" />
+      <Event esr="09751" type="transition" time="084600" odd="False" stagename="Zvare" stage="1" />
+      <Event esr="09750" type="transition" time="085500" odd="False" stagename="Tukums-2" stage="1" />
+      <Event esr="09772" type="transition" time="090900" odd="False" stagename="Slampe" stage="1" />
+      <Event esr="09764" type="arrival" time="092600" odd="False" stagename="Livberze" stage="1" />
+      <Event esr="09764" type="departure" time="093700" odd="False" stagename="Livberze" stage="1" />
+      <Event esr="09180" type="arrival" time="100100" odd="False" stagename="Jelgava" />
+      <Event esr="09180" type="arrival" time="105500" odd="False" stagename="Jelgava" stage="1" />
+      </Thread>
+    <Thread train="2056">
+      <Event esr="09860" type="departure" time="063800" odd="False" stagename="Liepaja" stage="1" />
+      <Event esr="09355" type="transition" time="060300" odd="False" stagename="Tore" stage="1" />
+      <Event esr="09351" type="transition" time="063100" odd="False" stagename="Ilmaja" stage="1" />
+      <Event esr="09350" type="transition" time="064800" odd="False" stagename="Kalvene" stage="1" />
+      <Event esr="09340" type="transition" time="070700" odd="False" stagename="Skrunda" stage="1" />
+      <Event esr="09330" type="transition" time="074300" odd="False" stagename="Saldus" stage="1" />
+      <Event esr="09320" type="transition" time="074900" odd="False" stagename="Broceni" stage="1" />
+      <Event esr="09303" type="transition" time="081300" odd="False" stagename="Biksti" stage="1" />
+      <Event esr="09290" type="arrival" time="083500" odd="False" stagename="Dobele" stage="1" />
+      <Event esr="09290" type="departure" time="084300" odd="False" stagename="Dobele" stage="1" />
+      <Event esr="09280" type="transition" time="085900" odd="False" stagename="Gluda" stage="2" />
+      <Event esr="09180" type="arrival" time="091800" odd="False" stagename="Jelgava" />
+      </Thread>
+    <Thread train="2102">
+      <Event esr="09960" type="arrival" time="065000" odd="False" stagename="Renge" stage="1" />
+      <Event esr="09960" type="departure" time="073400" odd="False" stagename="Renge" stage="1" />
+      <Event esr="09940" type="transition" time="082900" odd="False" stagename="Bene" stage="1" />
+      <Event esr="09280" type="arrival" time="090300" odd="False" stagename="Gluda" stage="2" />
+    </Thread>
+    </RegulatorySchedule>
+</LoadRegulatorySchedule>

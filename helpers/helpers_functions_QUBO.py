@@ -76,6 +76,7 @@ def earliestDepartureTime(S, trains_timing, train, station):
         return np.maximum(sched, unaviodable)
 
     s = previousStation(S[str(train)], station)
+        
     tau_pass = tau(
         trains_timing,
         "t_pass",
@@ -86,6 +87,7 @@ def earliestDepartureTime(S, trains_timing, train, station):
     tau_stop = tau(trains_timing, "t_stop", first_train=train, first_station=station)
     unavoidable = earliestDepartureTime(S, trains_timing, train, s) + tau_pass
     unavoidable += tau_stop
+
     return np.maximum(sched, unavoidable)
 
 def load_train_solution(f, i):
@@ -125,5 +127,4 @@ def energy(v, Q):
     X = np.array(Q)
     V = np.array(v)
 
-    return 0
-    # return V @ X @ V.transpose()
+    return V @ X @ V.transpose()

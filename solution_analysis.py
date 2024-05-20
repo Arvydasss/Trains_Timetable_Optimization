@@ -1,15 +1,16 @@
 """
 Solution analysis - file, which prints all the solutions of the problem (linear, simulated quantum, quantum)
-example: python solution_analysis.py 
+example: python solution_analysis.py problem_number solution_type(console, png)
 """
 import numpy as np
+import sys
 
 from encoders.ILP_encoder import printDeparture, solveLinearProblem, toHoursMinutes
 from encoders.QUBO_encoder import earliestDepartureTime, indexingForQubo, makeQubo
-from helpers.helpers_functions_PDF import trains_timings_to_pdf
+from helpers.helpers_functions_PDF import trains_timings_to_pdf, trains_timings_to_png
 from helpers.helpers_functions_QUBO import energy, load_train_solution
-from helpers.helpers_functions import getProblem
-from problems.read_files_to_problem import readScheduleXml, filterScheduleXml
+from helpers.helpers_functions import getProblem, generateProblem
+from problems.read_files_to_problem import readScheduleXml
 
 
 def visualise_solution(solution, Problem, num_brackets):
@@ -56,25 +57,25 @@ def print_solutions(f, Q, Q_only_hard, offset, Problem_original, i=""):
     print_no_solutions(solutions, occurrences, Q_only_hard, offset)
     visualise_solution(solutions[0], Problem_original, 30)
 
-def print_quantum_trains_timings(Problem_original, Q_only_hard, f_Q, num_brackets, offset):
+def print_quantum_trains_timings(Problem_original, problem_number, Q_only_hard, f_Q, num_brackets, offset):
     """
     Function to print problem solution using quantum annealing
     """
     print(">" * num_brackets + "QUANTUM SOLVER RESULTS" + "<" * num_brackets)
     Q = np.load(f_Q)["Q"]
     for i in [3,3.5,4,4.5]:
-         f = f"files/dwave_data/QUBO_complete_sol_real-anneal_numread1996_antime250_chainst{i}"
+         f = f"files/dwave_data/QUBO_complete_sol_real_anneal_problem{problem_number}_numread2000_antime240_chainst{i}"
          print_solutions(f, Q, Q_only_hard, offset, Problem_original, i)
     print(">" * num_brackets + "SOLVED BY QUANTUM SOLVER" +"<" * num_brackets)
     print("\n")
 
-def print_simulated_trains_timings(Problem_original, Q_only_hard, f_Q, num_brackets, offset):
+def print_simulated_trains_timings(Problem_original, Q_only_hard, f_Q, num_brackets, problem_number, offset):
     """
     Function to print problem solution using simulated quantum annealing
     """
     Q = np.load(f_Q)["Q"]
     print(">" * num_brackets + "SIMULATED SOLVER RESULTS" + "<" * num_brackets)
-    f = f"files/QUBO_complete_sol_sim-anneal"
+    f = f"files/QUBO_complete_sol_sim_anneal{problem_number}"
     print_solutions(f, Q, Q_only_hard, offset, Problem_original)
     print(">" * num_brackets + "SOLVED BY SIMULATED SOLVER" +"<" * num_brackets)
     print("\n")
@@ -87,7 +88,7 @@ def print_linear_trains_timings(problem, num_brackets):
     end_message = "SOLVED BY LINEAR SOLVER"
     print(">" * num_brackets + start_message + "<" * num_brackets)
     prob, optimization_time = solveLinearProblem(problem)
-    print("optimisation, time = ", optimization_time, "seconds")
+    # print("optimisation, time = ", optimization_time, "seconds")
 
     print("-" * num_brackets + "TRAIN SCHEDULE" + "-" *num_brackets)
     for train_id in problem.trains_routes["T"]:
@@ -98,27 +99,30 @@ def print_linear_trains_timings(problem, num_brackets):
     print(">" * num_brackets + end_message + "<" * num_brackets)
     print("\n")
 
-def print_all_solutions(problem, QMatrix, problem_file):
+def print_all_solutions(problem, QMatrix, problem_file, problem_number, solution_type):
     """
     Function to print all problem solutions (linear, simulated, quantums)
     """
-    trains_timings_to_pdf(problem, problem_file)
+    if (solution_type == 'console'):
+        trains_timings_to_console(problem, problem_number, QMatrix, problem_file)
+    else:
+        trains_timings_to_pdf(problem, problem_file, problem_number)
+        trains_timings_to_png(problem, problem_file, problem_number)
+
+def trains_timings_to_console(problem, problem_number, QMatrix, problem_file):
     print_linear_trains_timings(problem, 30)
-    print_simulated_trains_timings(problem, QMatrix, problem_file, 30, offset = -12.5)
-    # print_quantum_trains_timings(problem, QMatrix, problem_file, 30, offset = -12.5)
-    print("\n")
+    print_simulated_trains_timings(problem, QMatrix, problem_file, 30, problem_number, offset = -12.5)
+    print_quantum_trains_timings(problem, problem_number, QMatrix, problem_file, 30, -12.5)
 
 if __name__ == "__main__":
-    xml_file = "data/LDZ-train_example.xml"
-    output_xml_file = "data/LDZ-train_example_filtered.xml"
-    trains = ['2001', '2005', '2410', '2053', '2009']
-    stations = ['09181','09170','09280','09940','09960','09290','09303','09320','09330','09340','09350','09351','09355','09860','09764','09772','09750','09751','09780','09790','09800','09801','09736','09732','09730','09715','09730','09676','09670','09680','09540','09010','09150','09100','09160']
-
-    filterScheduleXml(xml_file, output_xml_file, stations, trains)
+    problem_number = int(sys.argv[1]) 
+    solution_type = str(sys.argv[2]) 
+    output_xml_file = f"data/LDZ_timetable_filtered{problem_number}.xml"
+    generateProblem(problem_number, output_xml_file)
     taus, trains_timing, trains_routes = readScheduleXml(output_xml_file)
     
-    prob = getProblem(taus, trains_timing, trains_routes)
-    prob_file = f'files/QUBO_matrix.npz'
+    prob = getProblem(problem_number, taus, trains_timing, trains_routes)
+    prob_file = f'files/QUBO_matrix{problem_number}.npz'
     Q = makeQubo(prob)
 
-    print_all_solutions(prob, "Q", prob_file)
+    print_all_solutions(prob, Q, prob_file, problem_number, solution_type)
