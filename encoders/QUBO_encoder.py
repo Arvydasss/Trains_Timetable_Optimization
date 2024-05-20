@@ -19,34 +19,34 @@ def indexingForQubo(trains_routes, trains_timing, d_max):
                 inds.append({"t": j, "s": s, "d": d, "a": a_value})
     return inds, len(inds)
 
-def pSum(k, l, jsd_dicts):
+def pSum(k, l, tsd_dicts):
     """
     Function for sum to one conditon
     """
-    if jsd_dicts[k]["t"] == jsd_dicts[l]["t"] and jsd_dicts[k]["s"] == jsd_dicts[l]["s"]:
-        if jsd_dicts[k]["d"] == jsd_dicts[l]["d"]:
+    if tsd_dicts[k]["t"] == tsd_dicts[l]["t"] and tsd_dicts[k]["s"] == tsd_dicts[l]["s"]:
+        if tsd_dicts[k]["d"] == tsd_dicts[l]["d"]:
             return -1.0
         return 1.0
     return 0.0
 
 
-def pHeadway(k, l, jsd_dicts, trains_timing, trains_routes):
+def pHeadway(k, l, tsd_dicts, trains_timing, trains_routes):
     """
     Function for minimal headway condition
     """
     S = trains_routes["Routes"]
-    t = jsd_dicts[k]["t"]
-    t1 = jsd_dicts[l]["t"]
-    s = jsd_dicts[k]["s"]
-    s1 = jsd_dicts[l]["s"]
+    t = tsd_dicts[k]["t"]
+    t1 = tsd_dicts[l]["t"]
+    s = tsd_dicts[k]["s"]
+    s1 = tsd_dicts[l]["s"]
     s_next = subsequentStation(S[t], s)
 
     if s == s1 and s_next and s_next == subsequentStation(S[t1], s1):
         if s in trains_routes["T0"].keys():
             if s_next in trains_routes["T0"][s].keys():
                 if occursAsPair(t, t1, trains_routes["T0"][s][s_next]):
-                    time = jsd_dicts[k]["d"] + earliestDepartureTime(S, trains_timing, t, s)
-                    time1 = jsd_dicts[l]["d"] + earliestDepartureTime(S, trains_timing, t1, s)
+                    time = tsd_dicts[k]["d"] + earliestDepartureTime(S, trains_timing, t, s)
+                    time1 = tsd_dicts[l]["d"] + earliestDepartureTime(S, trains_timing, t1, s)
 
                     A = -tau(trains_timing, "t_headway", first_train=t1, second_train=t, first_station=s, second_station=s_next)
                     B = tau(trains_timing, "t_headway", first_train=t, second_train=t1, first_station=s, second_station=s_next)
@@ -63,20 +63,20 @@ def pSingleTrack(k, l, jsd_dicts, trains_timing, trains_routes):
     p += penaltySingleTrack(l, k, jsd_dicts, trains_timing, trains_routes)
     return p
 
-def penaltySingleTrack(k, l, jsd_dicts, trains_timing, trains_routes):
+def penaltySingleTrack(k, l, tsd_dicts, trains_timing, trains_routes):
     """
     Helper function for pSingleTrack
     """
     S = trains_routes["Routes"]
-    t = jsd_dicts[k]["t"]
-    t1 = jsd_dicts[l]["t"]
-    s = jsd_dicts[k]["s"]
-    s1 = jsd_dicts[l]["s"]
+    t = tsd_dicts[k]["t"]
+    t1 = tsd_dicts[l]["t"]
+    s = tsd_dicts[k]["s"]
+    s1 = tsd_dicts[l]["s"]
 
     if (s, s1) in trains_routes["T0"].keys() and [t, t1] in trains_routes["T0"][(s, s1)]:
-        time = jsd_dicts[k]["d"] + earliestDepartureTime(S, trains_timing, t, s)
+        time = tsd_dicts[k]["d"] + earliestDepartureTime(S, trains_timing, t, s)
         time2 = time
-        time1 = jsd_dicts[l]["d"] + earliestDepartureTime(S, trains_timing, t1, s1)
+        time1 = tsd_dicts[l]["d"] + earliestDepartureTime(S, trains_timing, t1, s1)
         time -= tau(trains_timing, "t_pass", first_train=t1, first_station=s1, second_station=s)
         time2 += tau(trains_timing, "t_pass", first_train=t, first_station=s, second_station=s1)
         if time < time1 < time2:
@@ -93,22 +93,22 @@ def pMinimalStay(k, l, jsd_dicts, trains_timing, trains_routes):
     p += penaltyMinimalStay(l, k, jsd_dicts, trains_timing, S)
     return p
 
-def penaltyMinimalStay(k, l, jsd_dicts, trains_timing, S):
+def penaltyMinimalStay(k, l, tsd_dicts, trains_timing, S):
     """
     Helper function for PMinimalStay
     """
-    j = jsd_dicts[k]["t"]
+    t = tsd_dicts[k]["t"]
 
-    if j == jsd_dicts[l]["t"]:
-        sp = jsd_dicts[k]["s"]
-        s = jsd_dicts[l]["s"]
-        if s == subsequentStation(S[j], sp):
-            lhs = jsd_dicts[l]["d"]
-            lhs += earliestDepartureTime(S, trains_timing, j, s)
-            rhs = jsd_dicts[k]["d"]
-            rhs += earliestDepartureTime(S, trains_timing, j, sp)
-            rhs += tau(trains_timing, "t_pass", first_train=j, first_station=sp, second_station=s)
-            rhs += tau(trains_timing, "t_stop", first_train=j, first_station=s)
+    if t == tsd_dicts[l]["t"]:
+        sp = tsd_dicts[k]["s"]
+        s = tsd_dicts[l]["s"]
+        if s == subsequentStation(S[t], sp):
+            lhs = tsd_dicts[l]["d"]
+            lhs += earliestDepartureTime(S, trains_timing, t, s)
+            rhs = tsd_dicts[k]["d"]
+            rhs += earliestDepartureTime(S, trains_timing, t, sp)
+            rhs += tau(trains_timing, "t_pass", first_train=t, first_station=sp, second_station=s)
+            rhs += tau(trains_timing, "t_stop", first_train=t, first_station=s)
 
             if lhs < rhs:
                 return 1.0
@@ -126,7 +126,7 @@ def pSwitchOccupation(k, l, inds, trains_timing, trains_routes):
 
     for s in trains_routes["Tswitch"].keys():
         for pairs_of_switch in trains_routes["Tswitch"][s]:
-            if [tp, tpp] == list(pairs_of_switch.keys()) or [tpp, tp] == list(pairs_of_switch.keys()):  # here is symmetrisation
+            if [tp, tpp] == list(pairs_of_switch.keys()) or [tpp, tp] == list(pairs_of_switch.keys()): 
                 if sp == departureStationForSwitches(s, tp, pairs_of_switch, trains_routes):
                     if spp == departureStationForSwitches(s, tpp, pairs_of_switch, trains_routes):
                         t = inds[k]["d"] + earliestDepartureTime(S, trains_timing, tp, sp)

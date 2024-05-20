@@ -3,6 +3,7 @@ QUBO_generator - file to generate QUBO matrixes for problem
 example: python QUBO_generator.py
 """
 import numpy as np
+import sys
 
 from encoders.QUBO_encoder import makeQubo
 from helpers.helpers_functions import getProblem
@@ -26,14 +27,14 @@ def analyseQubo(Q):
     print("density vs. full graph", k/full)
     print(".................................")
 
-def saveMatrix():
+def saveMatrix(problem):
     """
     Function to make and save QUBO matrix as file
     """
-    xml_file = "data/LDZ-train_example_filtered.xml"
+    xml_file = f"data/LDZ_timetable_filtered{problem}.xml"
     taus, trains_timing, trains_routes = readScheduleXml(xml_file)
-    prob = getProblem(taus, trains_timing, trains_routes)
-    file = f'files/QUBO_matrix.npz'
+    prob = getProblem(problem, taus, trains_timing, trains_routes)
+    file = f'files/QUBO_matrix{problem}.npz'
     print("---------graph analysis---------")
     Q = makeQubo(prob)
     analyseQubo(Q)
@@ -41,4 +42,5 @@ def saveMatrix():
     np.savez(file, Q=Q)
 
 if __name__ == "__main__":
-    saveMatrix()
+    problem = int(sys.argv[1])
+    saveMatrix(problem)

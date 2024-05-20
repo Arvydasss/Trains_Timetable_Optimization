@@ -7,6 +7,7 @@ import pulp as pus
 
 from helpers.helpers_functions_QUBO  import departureStationForSwitches, earliestDepartureTime, tau, previousStation, occursAsPair, penaltyWeights
 from helpers.helpers_functions_ILP import canMO, trainsEnteringViaSameSwitches, getM, updateDictOfDicts
+from helpers.helpers_functions import toDateTime
 
 def orderVariables(train_sets):
     """
@@ -31,8 +32,8 @@ def orderForMinimalSpanConstrain(order_vars, train_sets):
     """
     Function that adds to nested order_vars dict order variables for minimal span constrains
     """
-    for s in train_sets["T0"].keys():
-        for all_ts in train_sets["T0"][s].values():
+    for s in train_sets["T1"].keys():
+        for all_ts in train_sets["T1"][s].values():
             for ts in all_ts:
                 for (t, tp) in itertools.combinations(ts, 2):
                     updateBetween2Trains1Station(order_vars, str(t), str(tp), str(s))
@@ -164,9 +165,9 @@ def minimalSpan(problem, timetable, delay_var, y, train_sets, d_max):
     """
     Function to add the minimum span condition to the pulp problem
     """
-    for s in train_sets["T0"].keys():
-        for sp in train_sets["T0"][s].keys():
-            for js in train_sets["T0"][s][sp]:
+    for s in train_sets["T1"].keys():
+        for sp in train_sets["T1"][s].keys():
+            for js in train_sets["T1"][s][sp]:
                 for (j, jp) in itertools.combinations(js, 2):
                     minimalSpanConstrain(s, sp, j, jp, problem, timetable, delay_var, y, train_sets, d_max)
                     minimalSpanConstrain(s, sp, jp, j, problem, timetable, delay_var, y, train_sets, d_max)
@@ -274,7 +275,7 @@ def trackOccupation(problem, timetable, delay_var, y, train_sets, d_max):
         for js in train_sets["Ttrack"][s]:
             js = [int(num) for num in js]
             for (j, jp) in itertools.combinations(js, 2):
-                keepTrainsOrder(s, j, jp, problem, y, train_sets)
+                keepTrainsOrder(s, str(j), str(jp), problem, y, train_sets)
                 trainsOrderAtStation(s, jp, j, problem, timetable, delay_var, y, train_sets, d_max)
                 trainsOrderAtStation(s, j, jp, problem, timetable, delay_var, y, train_sets, d_max)
 
@@ -318,10 +319,13 @@ def switchOccupation(problem, timetable, delay_var, y, train_sets, d_max):
     for s in train_sets["Tswitch"].keys():
         for pair in train_sets["Tswitch"][s]:
             for (tp, tpp) in itertools.combinations(pair.keys(), 2):
+                tp = str(tp)
+                tpp = str(tpp)
                 sp = departureStationForSwitches(s, tp, pair, train_sets)
                 spp = departureStationForSwitches(s, tpp, pair, train_sets)
-                switchOcc(s, tp, sp, tpp, spp, problem, timetable, delay_var, y, train_sets, d_max)
-                switchOcc(s, tpp, spp, tp, sp, problem, timetable, delay_var, y, train_sets, d_max)
+                if (sp and spp is not None):
+                    switchOcc(s, tp, sp, tpp, spp, problem, timetable, delay_var, y, train_sets, d_max)
+                    switchOcc(s, tpp, spp, tp, sp, problem, timetable, delay_var, y, train_sets, d_max)
 
 def objective(problem, timetable, delay_var, train_sets, d_max):
     """
@@ -404,15 +408,14 @@ def getDepartureArrivalInfoForPdf(train_sets, timetable, prob, t, s, isFirstStat
         stop_at_station = int(conflicted_departure_tt) - int(tau(timetable, "t_stop", t, s))
         conflicted_stop_at_station = conflict_free_departure - int(tau(timetable, "t_stop", t, s))
 
-
     departure_info = {
         "train_number": t,
         "station": s,
-        "conflict_free_departure_time": toHoursMinutes(int(conflict_free_departure)),
-        "conflict_free_arrival_time": toHoursMinutes(int(conflicted_stop_at_station)),
+        "conflict_free_departure_time": toDateTime(int(conflict_free_departure)),
+        "conflict_free_arrival_time": toDateTime(int(conflicted_stop_at_station)),
         "delay": int(delay),
-        "conflicted_departure_time": toHoursMinutes(int(conflicted_departure_tt)),
-        "conflicted_arrival_time": toHoursMinutes(int(stop_at_station))
+        "conflicted_departure_time": toDateTime(int(conflicted_departure_tt)),
+        "conflicted_arrival_time": toDateTime(int(stop_at_station))
     }
 
     return departure_info
@@ -420,7 +423,6 @@ def getDepartureArrivalInfoForPdf(train_sets, timetable, prob, t, s, isFirstStat
 def toHoursMinutes(minutes):
     hours = minutes // 60
     min = minutes % 60
-
     return f"{hours:02d}:{min:02d}"
 
 def impact_to_objective(prob, timetable, t, s, d_max, data = []):

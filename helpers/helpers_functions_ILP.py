@@ -29,18 +29,18 @@ def canMO(t, tp, s, train_sets):
     """
     Function to check if trains t1 and t2 can meet and overtake (MO) in the line between station and previous station
     """
-    T0 = train_sets["T0"]
+    T1 = train_sets["T1"]
     S = train_sets["Routes"]
     sp = previousStation(S[t], s)
     spp = previousStation(S[tp], s)
 
-    if T0 == {}:
+    if T1 == {}:
         return False
     if sp is None or spp is None:
         return False
     if sp != spp:
         return True
-    if occursAsPair(t, tp, T0[sp][s]):
+    if occursAsPair(t, tp, T1[sp][s]):
         return False
     return True
 
