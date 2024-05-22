@@ -25,4 +25,4 @@ When QUBO matrix is generated, write line in console:
 
 In console write line: **python solution_analysis.py (problem_number) (console/png)**
 
-It will print all the solutions in console or create train_schedule_linear{problem_number}.pdf/train_schedule_linear{problem_number}.png, train_schedule_original{problem_number}.pdf/train_schedule_original{problem_number}.pdf, train_schedule_simulated{problem_number}.pdf/train_schedule_simulated{problem_number}.png, train_schedule_quantums{problem_number}_{chain_stength}.pdf/train_schedule_quantums{problem_number}_{chain_stength}.png files in solutions folder containing the timetable.
+It will print all the solutions in console or create train_schedule_linear{problem_number}.pdf/train_schedule_linear{problem_number}.png, train_schedule_original{problem_number}.pdf/train_schedule_original{problem_number}.png, train_schedule_simulated{problem_number}.pdf/train_schedule_simulated{problem_number}.png, train_schedule_quantums{problem_number}_{chain_stength}.pdf/train_schedule_quantums{problem_number}_{chain_stength}.png files in solutions folder containing the timetable.
