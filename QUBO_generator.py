@@ -22,9 +22,6 @@ def analyseQubo(Q):
 
     print("n.o. qbits = ", s)
     print("n.o. edges = ", k)
-    full = (s-1)*s/2
-    print("n.o. edges, full graph", full)
-    print("density vs. full graph", k/full)
     print(".................................")
 
 def saveMatrix(problem):

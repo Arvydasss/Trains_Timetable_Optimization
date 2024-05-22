@@ -52,15 +52,6 @@ def tau(trains_timing, key, first_train=None, first_station=None, second_station
         return trains_timing["tau"]["res"]
     return -1000
 
-def penaltyWeights(trains_timing, train, station):
-    """
-    Function that returns penalty weight for a delay above unaviodable at the given station
-    """
-    train_station = f"{train}_{station}"
-    if train_station in trains_timing["t_penalty"]:
-        return trains_timing["t_penalty"][train_station]
-    return 0.0
-
 def earliestDepartureTime(S, trains_timing, train, station):
     """
     Fuction that returns earliest possible departure of a train from the given station
@@ -102,10 +93,8 @@ def load_train_solution(f, i):
 
     sorted = np.sort(sampleset.record, order="energy")
     solutions = [sol[0] for sol in sorted]
-    energies = [sol[1] for sol in sorted]
-    occurrences = [sol[2] for sol in sorted]
 
-    return solutions, energies, occurrences
+    return solutions
 
 def departureStationForSwitches(s, j, place_of_switch, trains_routes):
     """

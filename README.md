@@ -1,10 +1,10 @@
 # Trains Timetable Conflicts Solutions Optimization
 
-This solution is solving trains timetable conflicts and optimize the solution of it. It uses modified Latvian railways data and prints the trains timetable to a .pdf file. This solutions uses quantum and linear programing.
+This solution is solving trains timetable conflicts and optimize the solution of it. It uses modified Latvian railways data and prints the trains timetable to a .pdf and .png files. This solutions uses quantum and linear programing.
 
 ## Data
 
-Data can be found in data folder, where is locationLinksData.csv file, which contains location links between stations of a latvian railway network and LDZ_timetable.xml file, which contains the modified year timetable of a railway network. The LDZ_timetable_filtered.xml file contains the data of the choosen railway network timetable data.
+Data can be found in data folder, where is locationLinksData.csv file, which contains location links between stations of a latvian railway network and LDZ_timetable_filtered{problem_number}.xml files contains the data of the choosen railway network timetables data.
 
 ## How to use it?
 
@@ -23,6 +23,6 @@ When QUBO matrix is generated, write line in console:
   
 ### How to see all the solutions and timetables?
 
-In console write line: **python solution_analysis.py (console/png)**
+In console write line: **python solution_analysis.py (problem_number) (console/png)**
 
-It will print all the solutions in console and create train_schedule_linear.pdf, train_schedule_original.pdf, train_schedule_simulated.pdf, train_schedule_quantums.pdf files which contains timetable.
+It will print all the solutions in console or create train_schedule_linear{problem_number}.pdf/train_schedule_linear{problem_number}.png, train_schedule_original{problem_number}.pdf/train_schedule_original{problem_number}.pdf, train_schedule_simulated{problem_number}.pdf/train_schedule_simulated{problem_number}.png, train_schedule_quantums{problem_number}_{chain_stength}.pdf/train_schedule_quantums{problem_number}_{chain_stength}.png files in solutions folder containing the timetable.

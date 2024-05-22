@@ -3,7 +3,7 @@ Encodes problem to QUBO
 """
 import itertools
 import numpy as np
-from helpers.helpers_functions_QUBO import penaltyWeights, subsequentStation, occursAsPair, earliestDepartureTime, tau, departureStationForSwitches
+from helpers.helpers_functions_QUBO import subsequentStation, occursAsPair, earliestDepartureTime, tau, departureStationForSwitches
 
 def indexingForQubo(trains_routes, trains_timing, d_max):
     """
@@ -287,7 +287,7 @@ def penalty(k, tsd_dicts, Problem):
     """
     t = tsd_dicts[k]["t"]
     s = tsd_dicts[k]["s"]
-    w = penaltyWeights(Problem.trains_timing, t, s) / Problem.d_max
+    w = 0
     return tsd_dicts[k]["d"] * w
 
 def getCoupling(k, l, tsd_dicts, Problem):
