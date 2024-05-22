@@ -6,7 +6,7 @@ import numpy as np
 import sys
 
 from encoders.ILP_encoder import printDeparture, solveLinearProblem, toHoursMinutes
-from encoders.QUBO_encoder import earliestDepartureTime, indexingForQubo, makeQubo
+from encoders.QUBO_encoder import edt, indexingForQubo, makeQubo
 from helpers.helpers_functions_PDF import trains_timings_to_pdf, trains_timings_to_png
 from helpers.helpers_functions_QUBO import energy, load_train_solution
 from helpers.helpers_functions import getProblem 
@@ -30,8 +30,8 @@ def visualise_solution(solution, Problem, num_brackets):
             t = inds[i]["t"]
             s = inds[i]["s"]
             d = inds[i]["d"]
-            time = d + earliestDepartureTime(trains_routes["Routes"], Problem.trains_timing, t, s)
-            print("Train", t, "goes from station", s, "(dep. time)", toHoursMinutes(int(time)), " with ", d, " minutes delay (original time", toHoursMinutes(int(earliestDepartureTime(trains_routes["Routes"], Problem.trains_timing, t, s))),")")
+            time = d + edt(trains_routes["Routes"], Problem.trains_timing, t, s)
+            print("Train", t, "goes from station", s, "(dep. time)", toHoursMinutes(int(time)), " with ", d, " minutes delay (original time", toHoursMinutes(int(edt(trains_routes["Routes"], Problem.trains_timing, t, s))),")")
     print("-" * 74)
 
 def print_solutions(f, Problem_original, i=""):

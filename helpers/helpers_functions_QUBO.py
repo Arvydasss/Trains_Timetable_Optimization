@@ -52,7 +52,7 @@ def tau(trains_timing, key, first_train=None, first_station=None, second_station
         return trains_timing["tau"]["res"]
     return -1000
 
-def earliestDepartureTime(S, trains_timing, train, station):
+def edt(S, trains_timing, train, station):
     """
     Fuction that returns earliest possible departure of a train from the given station
     """
@@ -76,7 +76,7 @@ def earliestDepartureTime(S, trains_timing, train, station):
         second_station=station,
     )
     tau_stop = tau(trains_timing, "t_stop", first_train=train, first_station=station)
-    unavoidable = earliestDepartureTime(S, trains_timing, train, s) + tau_pass
+    unavoidable = edt(S, trains_timing, train, s) + tau_pass
     unavoidable += tau_stop
 
     return np.maximum(sched, unavoidable)

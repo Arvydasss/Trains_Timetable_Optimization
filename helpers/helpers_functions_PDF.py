@@ -7,7 +7,7 @@ import matplotlib.dates as mdates
 import os
 
 from encoders.ILP_encoder import solveLinearProblem, getDepartureArrivalInfoForPdf, toHoursMinutes
-from encoders.QUBO_encoder import earliestDepartureTime, indexingForQubo
+from encoders.QUBO_encoder import edt, indexingForQubo
 from helpers.helpers_functions_QUBO import load_train_solution
 from helpers.helpers_functions import toDateTime
 from reportlab.lib import colors
@@ -145,7 +145,7 @@ def trains_timings_quantum_to_png(problem, problem_file, problem_number):
                 s = inds[i]["s"]
                 d = inds[i]["d"]
                 a = inds[i]["a"]
-                time = d + earliestDepartureTime(trains_routes["Routes"], problem.trains_timing, t, s)
+                time = d + edt(trains_routes["Routes"], problem.trains_timing, t, s)
 
                 if s not in stations:
                     stations.append(s)
@@ -200,7 +200,7 @@ def trains_timings_simulated_to_png(problem, problem_file, problem_number):
             s = inds[i]["s"]
             d = inds[i]["d"]
             a = inds[i]["a"]
-            time = d + earliestDepartureTime(trains_routes["Routes"], problem.trains_timing, t, s)
+            time = d + edt(trains_routes["Routes"], problem.trains_timing, t, s)
 
             if s not in stations:
                 stations.append(s)
@@ -354,7 +354,7 @@ def trains_timings_simulated_to_pdf(problem, problem_file, problem_number):
             s = inds[i]["s"]
             d = inds[i]["d"]
             a = inds[i]["a"]
-            time = d + earliestDepartureTime(trains_routes["Routes"], problem.trains_timing, t, s)
+            time = d + edt(trains_routes["Routes"], problem.trains_timing, t, s)
             if (t == current_train_id):
                 if (row == 2):
                     current_train_id = t
