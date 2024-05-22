@@ -4,7 +4,7 @@ Encoder for ILP/MPL solver
 import itertools
 import pulp as pus
 
-from helpers.helpers_functions_QUBO  import departureStationForSwitches, earliestDepartureTime, tau, previousStation, occursAsPair
+from helpers.helpers_functions_QUBO  import departureStationForSwitches, edt, tau, previousStation, occursAsPair
 from helpers.helpers_functions_ILP import canMO, trainsEnteringViaSameSwitches, getM, updateDictOfDicts
 from helpers.helpers_functions import toDateTime
 
@@ -149,8 +149,8 @@ def minimalSpanConstrain(s, sp, t, tp, problem, timetable, delay_var, y, train_s
     Function to ecnode constrains for minimal span condition
     """
     S = train_sets["Routes"]
-    LHS = earliestDepartureTime(S, timetable, tp, s)
-    RHS = earliestDepartureTime(S, timetable, t, s)
+    LHS = edt(S, timetable, tp, s)
+    RHS = edt(S, timetable, t, s)
     RHS += tau(timetable, "t_headway", first_train=t, second_train=tp, first_station=s, second_station=sp)
     M = getM(LHS, RHS, d_max)
 
@@ -176,8 +176,8 @@ def singleLineConstrain(s, sp, t, tp, problem, timetable, delay_var, y, train_se
     Function to encode constsains for the single line condition
     """
     S = train_sets["Routes"]
-    LHS = earliestDepartureTime(S, timetable, t, s)
-    RHS = earliestDepartureTime(S, timetable, tp, sp)
+    LHS = edt(S, timetable, t, s)
+    RHS = edt(S, timetable, tp, sp)
     RHS += tau(timetable, "t_pass", first_train=tp, first_station=sp, second_station=s)
     M = getM(LHS, RHS, d_max)
 
@@ -206,9 +206,9 @@ def minimalStayConstrain(t, s, problem, timetable, delay_var, train_sets):
     if sp is not None:
         if s in delay_var[t]: 
             LHS = delay_var[t][s]
-            LHS += earliestDepartureTime(S, timetable, t, s)
+            LHS += edt(S, timetable, t, s)
             RHS = delay_var[t][sp]
-            RHS += earliestDepartureTime(S, timetable, t, sp)
+            RHS += edt(S, timetable, t, sp)
             RHS += tau(timetable, "t_pass", first_train=t, first_station=sp, second_station=s)
             RHS += tau(timetable, "t_stop", first_train=t, first_station=s)
             problem += (LHS >= RHS, f"minimal_stay_{t}_{s}")
@@ -249,12 +249,12 @@ def trainsOrderAtStation(s, t, tp, problem, timetable, delay_var, y, train_sets,
 
     sp = previousStation(S[str(tp)], s)
     if sp is not None:
-        LHS = earliestDepartureTime(S, timetable, tp, sp)
+        LHS = edt(S, timetable, tp, sp)
         LHS += tau(timetable, "t_pass", first_train=tp, first_station=sp, second_station=s)
     else: 
-        LHS = earliestDepartureTime(S, timetable, tp, s)
+        LHS = edt(S, timetable, tp, s)
 
-    RHS = earliestDepartureTime(S, timetable, t, s)
+    RHS = edt(S, timetable, t, s)
     M = getM(LHS, RHS, d_max)
 
     if LHS - d_max < RHS:
@@ -283,8 +283,8 @@ def switchOcc(s, tp, sp, tpp, spp, problem, timetable, delay_var, y, train_sets,
     Helper function for switchOccupation
     """
     S = train_sets["Routes"]
-    LHS = earliestDepartureTime(S, timetable, tp, sp)
-    RHS = earliestDepartureTime(S, timetable, tpp, spp)
+    LHS = edt(S, timetable, tp, sp)
+    RHS = edt(S, timetable, tpp, spp)
     RHS += tau(timetable, "res", first_train=tp, second_train=tpp, first_station=s)
 
     if s != sp:
@@ -379,7 +379,7 @@ def printDeparture(train_sets, timetable, prob, t, s, data = []):
             else:
                 delay = data[v.name]
 
-            conflicted_tt = earliestDepartureTime(train_sets["Routes"], timetable, t, s)
+            conflicted_tt = edt(train_sets["Routes"], timetable, t, s)
             conflict_free = delay + conflicted_tt
             print("Train", t, "goes from station", s, "(dep. time)", toHoursMinutes(int(conflict_free)), " with ", int(delay), " minutes delay (original time",toHoursMinutes(int(conflicted_tt)),")")
 
@@ -395,7 +395,7 @@ def getDepartureArrivalInfoForPdf(train_sets, timetable, prob, t, s, isFirstStat
             else:
                 delay = data[v.name]
   
-    conflicted_departure_tt = earliestDepartureTime(train_sets["Routes"], timetable, t, s)
+    conflicted_departure_tt = edt(train_sets["Routes"], timetable, t, s)
     conflict_free_departure = delay + conflicted_departure_tt
 
     conflicted_stop_at_station = conflict_free_departure

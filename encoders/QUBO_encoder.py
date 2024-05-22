@@ -3,7 +3,7 @@ Encodes problem to QUBO
 """
 import itertools
 import numpy as np
-from helpers.helpers_functions_QUBO import subsequentStation, occursAsPair, earliestDepartureTime, tau, departureStationForSwitches
+from helpers.helpers_functions_QUBO import subsequentStation, occursAsPair, edt, tau, departureStationForSwitches
 
 def indexingForQubo(trains_routes, trains_timing, d_max):
     """
@@ -42,11 +42,11 @@ def pHeadway(k, l, tsd_dicts, trains_timing, trains_routes):
     s_next = subsequentStation(S[t], s)
 
     if s == s1 and s_next and s_next == subsequentStation(S[t1], s1):
-        if s in trains_routes["T0"].keys():
-            if s_next in trains_routes["T0"][s].keys():
-                if occursAsPair(t, t1, trains_routes["T0"][s][s_next]):
-                    time = tsd_dicts[k]["d"] + earliestDepartureTime(S, trains_timing, t, s)
-                    time1 = tsd_dicts[l]["d"] + earliestDepartureTime(S, trains_timing, t1, s)
+        if s in trains_routes["T1"].keys():
+            if s_next in trains_routes["T1"][s].keys():
+                if occursAsPair(t, t1, trains_routes["T1"][s][s_next]):
+                    time = tsd_dicts[k]["d"] + edt(S, trains_timing, t, s)
+                    time1 = tsd_dicts[l]["d"] + edt(S, trains_timing, t1, s)
 
                     A = -tau(trains_timing, "t_headway", first_train=t1, second_train=t, first_station=s, second_station=s_next)
                     B = tau(trains_timing, "t_headway", first_train=t, second_train=t1, first_station=s, second_station=s_next)
@@ -74,9 +74,9 @@ def penaltySingleTrack(k, l, tsd_dicts, trains_timing, trains_routes):
     s1 = tsd_dicts[l]["s"]
 
     if (s, s1) in trains_routes["T0"].keys() and [t, t1] in trains_routes["T0"][(s, s1)]:
-        time = tsd_dicts[k]["d"] + earliestDepartureTime(S, trains_timing, t, s)
+        time = tsd_dicts[k]["d"] + edt(S, trains_timing, t, s)
         time2 = time
-        time1 = tsd_dicts[l]["d"] + earliestDepartureTime(S, trains_timing, t1, s1)
+        time1 = tsd_dicts[l]["d"] + edt(S, trains_timing, t1, s1)
         time -= tau(trains_timing, "t_pass", first_train=t1, first_station=s1, second_station=s)
         time2 += tau(trains_timing, "t_pass", first_train=t, first_station=s, second_station=s1)
         if time < time1 < time2:
@@ -104,9 +104,9 @@ def penaltyMinimalStay(k, l, tsd_dicts, trains_timing, S):
         s = tsd_dicts[l]["s"]
         if s == subsequentStation(S[t], sp):
             lhs = tsd_dicts[l]["d"]
-            lhs += earliestDepartureTime(S, trains_timing, t, s)
+            lhs += edt(S, trains_timing, t, s)
             rhs = tsd_dicts[k]["d"]
-            rhs += earliestDepartureTime(S, trains_timing, t, sp)
+            rhs += edt(S, trains_timing, t, sp)
             rhs += tau(trains_timing, "t_pass", first_train=t, first_station=sp, second_station=s)
             rhs += tau(trains_timing, "t_stop", first_train=t, first_station=s)
 
@@ -129,10 +129,10 @@ def pSwitchOccupation(k, l, inds, trains_timing, trains_routes):
             if [tp, tpp] == list(pairs_of_switch.keys()) or [tpp, tp] == list(pairs_of_switch.keys()): 
                 if sp == departureStationForSwitches(s, tp, pairs_of_switch, trains_routes):
                     if spp == departureStationForSwitches(s, tpp, pairs_of_switch, trains_routes):
-                        t = inds[k]["d"] + earliestDepartureTime(S, trains_timing, tp, sp)
+                        t = inds[k]["d"] + edt(S, trains_timing, tp, sp)
                         if s != sp:
                             t += tau(trains_timing, "t_pass", first_train=tp, first_station=sp, second_station=s)
-                        t1 = inds[l]["d"] + earliestDepartureTime(S, trains_timing, tpp, spp)
+                        t1 = inds[l]["d"] + edt(S, trains_timing, tpp, spp)
                         if s != spp:
                             t1 += tau(trains_timing, "t_pass", first_train=tpp, first_station=spp, second_station=s)
                         p = penaltySwitch(t, t1, trains_timing)
@@ -216,10 +216,10 @@ def oneTrackConstrains(jx, jz, jz1, sx, sz, d, d1, d2, trains_timing, trains_rou
     Helper function for pairOfOneTrackConstrains
     """
     S = trains_routes["Routes"]
-    tx = d + earliestDepartureTime(S, trains_timing, jx, sx)
+    tx = d + edt(S, trains_timing, jx, sx)
     tx += tau(trains_timing, "t_pass", first_train=jx, first_station=sx, second_station=sz)
-    tz = d1 + earliestDepartureTime(S, trains_timing, jz, sz)
-    tz1 = d2 + earliestDepartureTime(S, trains_timing, jz1, sz)
+    tz = d1 + edt(S, trains_timing, jz, sz)
+    tz1 = d2 + edt(S, trains_timing, jz1, sz)
 
     if tx < tz1 <= tz:
         return 1.0
