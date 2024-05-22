@@ -5,6 +5,9 @@ import csv
 import xml.etree.ElementTree as ET
 
 def readLocationLinksCsv():
+    """
+    Function to read location links data from CSV file
+    """
     csv_file = 'data/LocationLinksData.csv'
     data = {}
     with open(csv_file, newline='') as csvfile:
@@ -16,57 +19,19 @@ def readLocationLinksCsv():
     return data
 
 def timeToMinutes(time_str):
+    """
+    Function to convert time to minutes
+    """
     hours = int(time_str[:2])
     minutes = int(time_str[2:4])
     seconds = int(time_str[4:])
     total_minutes = hours * 60 + minutes + seconds / 60
     return int(total_minutes)
 
-def filterScheduleXml(input_xml_path, output_xml_path, stations = "", trains=""):
-    tree = ET.parse(input_xml_path)
-    root = tree.getroot()
-    threads = root.findall('.//Thread')
-
-    if (trains != ""):
-        removeUnusedTrains(root, threads, trains)
-
-    if (stations != ""):
-        removeUnusedStations(threads, stations)
-
-    removeEmptyTrain(root, threads, trains)
-    editStationsTypes(threads)   
-
-    tree.write(output_xml_path)
-
-def removeUnusedTrains(root, threads, trains):
-    for thread in threads:
-        train_number = thread.attrib.get('train') 
-        if (train_number not in trains):
-            root.find('.//RegulatorySchedule').remove(thread)
-
-def removeUnusedStations(threads, stations):
-    for thread in threads:
-        for event in thread.findall('Event'):
-            esr_code = event.attrib.get('esr')
-            if esr_code not in stations:
-                thread.remove(event)
-
-def removeEmptyTrain(root, threads, trains):
-    for thread in threads:
-        if len(thread) < 2:
-            if (trains != ""):
-                if (thread.attrib.get('train') in trains):
-                    root.find('.//RegulatorySchedule').remove(thread)
-            else:
-                root.find('.//RegulatorySchedule').remove(thread)
-
-def editStationsTypes(threads):
-    for thread in threads:
-        for index, event in enumerate(thread.findall('Event')):
-            if (index == len(thread.findall('Event')) - 1):
-                event.attrib['type'] = 'arrival'
-
 def readScheduleXml(xml_file):
+    """
+    Function to read adn asing values from XML
+    """
     locationLinks = readLocationLinksCsv()
     tree = ET.parse(xml_file)
     root = tree.getroot()
@@ -94,6 +59,9 @@ def readScheduleXml(xml_file):
     return assignValuesToProblem(t_pass, t_headway, t_stop, t_out, t_penalty, Routes, T, T1, T0, Ttrack, Tswitch)
 
 def readDataFromXml(root, trains):
+    """
+    Function to read data XML file
+    """
     for regulatory_schedule in root.findall('RegulatorySchedule'):
         for thread in regulatory_schedule.findall('Thread'):
             train_info = {
@@ -117,6 +85,9 @@ def readDataFromXml(root, trains):
             trains.append(train_info)
 
 def calculateOutPenaltyStopRoutesT(trains, t_out, t_penalty, t_stop, Routes, T):
+    """
+    Function to caclucalte t_stop t_routes and t_penalty values
+    """
     for train_info in trains:
         train_id = train_info['train']
         route = []
@@ -137,6 +108,9 @@ def calculateOutPenaltyStopRoutesT(trains, t_out, t_penalty, t_stop, Routes, T):
         T.append(train_id)
 
 def calculateHeadwayTrackT(Routes, t_headway, Ttrack, T1):
+    """
+    Function to caclucalte t_headway t_track and T1 values
+    """
     route_keys = list(Routes.keys())
     for i in range(len(route_keys) - 1):
         train_id_1 = route_keys[i]
@@ -173,6 +147,9 @@ def calculateHeadwayTrackT(Routes, t_headway, Ttrack, T1):
                 Ttrack[last_station].append([train_id_1, train_id_2])
 
 def fixedRepeatedValues(Ttrack, T1, Tswitch):
+    """
+    Function to fix Tswitch values
+    """
     for key, value_list in Ttrack.items():
         Ttrack[key] = [uniqueValues(value_list)]
 
@@ -188,12 +165,18 @@ def fixedRepeatedValues(Ttrack, T1, Tswitch):
         Tswitch[key].extend(new_value)
 
 def uniqueValues(lst):
+    """
+    Function to make only uniquw Tswitch values
+    """
     unique_vals = set()
     for sublist in lst:
         unique_vals.update(sublist)
     return list(unique_vals)
 
 def mergeDictsInList(lst):
+    """
+    Function to merge fixed values
+    """
     merged_dict = {}
     for d in lst:
         if isinstance(d, dict):
@@ -212,6 +195,9 @@ def mergeDictsInList(lst):
     return merged_dict
 
 def calculateStopAndPassingTime(trains, t_pass, t_stop, locationLinks):
+    """
+    Function to calculate t_stop and t_pass values
+    """
     for train_info in trains:
             train_id = train_info['train']
             events = train_info['events']
@@ -232,6 +218,9 @@ def calculateStopAndPassingTime(trains, t_pass, t_stop, locationLinks):
                     t_stop[train_id + '_'+ event1['stagename']] = int(event2['time']) - int(event1['time'])
 
 def calculateForSingleLine(Routes, T0, Tswitch):
+    """
+    Function to calculate values for single track constraint
+    """
     route_keys = list(Routes.keys())
     for i in range(len(route_keys) - 1):
         train_id_1 = route_keys[i]
@@ -241,8 +230,6 @@ def calculateForSingleLine(Routes, T0, Tswitch):
         route_2 = Routes[train_id_2]
 
         if (route_1 == route_2[::-1]):
-            print(train_id_1)
-            print(train_id_2)
             for j in range(len(route_1) - 1):
                 station = route_1[j]
                 next_station = route_1[j+1]
@@ -259,6 +246,9 @@ def calculateForSingleLine(Routes, T0, Tswitch):
                     T0[conflict_key].append([train_id_1, train_id_2])
 
 def assignValuesToProblem(t_pass, t_headway, t_stop, t_out, t_penalty, Routes, T, T1, T0, Ttrack, Tswitch):
+    """
+    Function to assing values to the problem
+    """
     taus = {
         "t_pass": t_pass,
         "t_headway": t_headway,

@@ -2,10 +2,9 @@
 Encoder for ILP/MPL solver
 """
 import itertools
-import time
 import pulp as pus
 
-from helpers.helpers_functions_QUBO  import departureStationForSwitches, earliestDepartureTime, tau, previousStation, occursAsPair, penaltyWeights
+from helpers.helpers_functions_QUBO  import departureStationForSwitches, earliestDepartureTime, tau, previousStation, occursAsPair
 from helpers.helpers_functions_ILP import canMO, trainsEnteringViaSameSwitches, getM, updateDictOfDicts
 from helpers.helpers_functions import toDateTime
 
@@ -328,16 +327,15 @@ def switchOccupation(problem, timetable, delay_var, y, train_sets, d_max):
                     switchOcc(s, tpp, spp, tp, sp, problem, timetable, delay_var, y, train_sets, d_max)
 
 def objective(problem, timetable, delay_var, train_sets, d_max):
-    """
+    """S
     Function to add objective function to the pulp problem
     """
     S = train_sets["Routes"]
     problem += pus.lpSum(
         [
-            delay_var[i][j] * penaltyWeights(timetable, i, j) / d_max
+            delay_var[i][j] * 0 / d_max
             for i in train_sets["T"]
             for j in S[i]
-            if penaltyWeights(timetable, i, j) != 0
         ])
 
 def createLinearProblem(problem, cat):
@@ -366,11 +364,9 @@ def solveLinearProblem(problem, cat = "Integer"):
     Function which solves the linear problem returns the pulp object
     """
     prob = createLinearProblem(problem, cat)
-    start_time = time.time()
     prob.solve(pus.PULP_CBC_CMD(msg=False))
-    optimization_time = time.time() - start_time
 
-    return prob, optimization_time
+    return prob
 
 def printDeparture(train_sets, timetable, prob, t, s, data = []):
     """
@@ -435,5 +431,5 @@ def impact_to_objective(prob, timetable, t, s, d_max, data = []):
                 delay = v.varValue
             else:
                 delay = data[v.name]
-            return penaltyWeights(timetable, t, s) / d_max * delay
+            return 0 / d_max * delay
     return 0.0

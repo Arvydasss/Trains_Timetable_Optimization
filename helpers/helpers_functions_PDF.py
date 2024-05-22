@@ -31,7 +31,7 @@ def trains_timings_orginal_to_png(problem, problem_number):
     Function to print problem original timetable to a PNG file
     """
     output_file = f"files/solutions/original/train_schedule_original{problem_number}.png"
-    prob, optimization_time = solveLinearProblem(problem)
+    prob = solveLinearProblem(problem)
 
     if os.path.exists(output_file):
         os.remove(output_file)
@@ -78,7 +78,7 @@ def trains_timings_linear_to_png(problem, problem_number):
     Function to print problem linear timetable to a PNG file
     """
     output_file = f"files/solutions/linear/train_schedule_linear{problem_number}.png"
-    prob, optimization_time = solveLinearProblem(problem)
+    prob = solveLinearProblem(problem)
 
     if os.path.exists(output_file):
         os.remove(output_file)
@@ -127,7 +127,7 @@ def trains_timings_quantum_to_png(problem, problem_file, problem_number):
     """
     for i in [3,3.5,4,4.5]:
         f = f"files/dwave_data/QUBO_complete_sol_real_anneal_problem{problem_number}_numread2000_antime240_chainst{i}"
-        solutions, energies, occurrences = load_train_solution(f, i)
+        solutions = load_train_solution(f, i)
         trains_routes = problem.trains_routes
         trains_trains_timing = problem.trains_timing
         inds, q_bits = indexingForQubo(trains_routes,trains_trains_timing, problem.d_max)
@@ -235,7 +235,7 @@ def trains_timings_orginal_to_pdf(problem, problem_number):
     Function to print problem original timetable to a PDF file
     """
     output_file = f"files/solutions/original/train_schedule_original{problem_number}.pdf"
-    prob, optimization_time = solveLinearProblem(problem)
+    prob = solveLinearProblem(problem)
 
     if os.path.exists(output_file):
         os.remove(output_file)
@@ -281,7 +281,7 @@ def trains_timings_linear_to_pdf(problem, problem_number):
     Function to print problem linear timetable to a PDF file
     """
     output_file = f"files/solutions/linear/train_schedule_linear{problem_number}.pdf"
-    prob, optimization_time = solveLinearProblem(problem)
+    prob = solveLinearProblem(problem)
 
     if os.path.exists(output_file):
         os.remove(output_file)
